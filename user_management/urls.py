@@ -9,4 +9,6 @@ urlpatterns = [
     path('admin-dashboard/', views.admin_dashboard, name='admin_dashboard'),
     path('teacher-dashboard/', views.teacher_dashboard, name='teacher_dashboard'),
     path('user-dashboard/', views.user_dashboard, name='user_dashboard'),
+    path('users/', views.user_management, name='user_management'),
+    path('users/edit/<int:user_id>/', views.edit_user, name='edit_user'),
 ]

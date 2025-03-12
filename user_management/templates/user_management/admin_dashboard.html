@@ -9,10 +9,19 @@
     <p>Your role: {{ user.get_role_display }}</p>
     <p>This is the admin view with full system access.</p>
     
+    <div class="admin-menu" style="margin-bottom: 20px;">
+        <a href="{% url 'admin_dashboard' %}" style="text-decoration: none;">
+            <button style="background-color: #555;">Dashboard</button>
+        </a>
+        <a href="{% url 'user_management' %}" style="text-decoration: none;">
+            <button>Users</button>
+        </a>
+    </div>
+    
     <div>
         <h3>Admin Actions</h3>
         <ul>
-            <li>Manage all users</li>
+            <li><a href="{% url 'user_management' %}">Manage all users</a></li>
             <li>Configure system settings</li>
             <li>Create and manage content</li>
             <li>Monitor system activity</li>
@@ -20,26 +29,22 @@
     </div>
     
     <div class="card">
-        <h3>User Management</h3>
+        <h3>Recent Users</h3>
+        <p>Here are the most recent users in the system. <a href="{% url 'user_management' %}">Go to User Management</a> for full user control.</p>
         <table style="width: 100%; border-collapse: collapse;">
             <thead>
                 <tr style="background-color: #f2f2f2;">
                     <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Username</th>
                     <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Email</th>
                     <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Role</th>
-                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                {% for user_item in users %}
+                {% for user_item in users|slice:":5" %}
                 <tr>
                     <td style="padding: 10px; border: 1px solid #ddd;">{{ user_item.username }}</td>
                     <td style="padding: 10px; border: 1px solid #ddd;">{{ user_item.email }}</td>
                     <td style="padding: 10px; border: 1px solid #ddd;">{{ user_item.get_role_display }}</td>
-                    <td style="padding: 10px; border: 1px solid #ddd;">
-                        <button>Edit</button>
-                        <button style="background-color: #ff4444;">Delete</button>
-                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
