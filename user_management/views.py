@@ -2,14 +2,21 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from .forms import CustomUserCreationForm, CustomAuthenticationForm, UserEditForm, UserPasswordChangeForm
+from .forms import CustomUserCreationForm, CustomAuthenticationForm, UserEditForm, UserPasswordChangeForm, AdminUserCreationForm
 from .models import User
 
 def register_view(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            # Create user but don't save to database yet
+            user = form.save(commit=False)
+            # Set default role to USER
+            user.role = User.USER
+            # Now save the user with the assigned role
+            user.save()
+            # Save the form's m2m data as well
+            form.save_m2m()
             login(request, user)
             return redirect('dashboard')
     else:
@@ -121,3 +128,20 @@ def edit_user(request, user_id):
     }
     
     return render(request, 'user_management/edit_user.html', context)
+
+@login_required
+def admin_create_user(request):
+    """View for admins to create new users with role selection"""
+    if not request.user.is_administrator():
+        return redirect('dashboard')
+    
+    if request.method == 'POST':
+        form = AdminUserCreationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f"User {form.cleaned_data.get('username')} has been created successfully.")
+            return redirect('user_management')
+    else:
+        form = AdminUserCreationForm()
+    
+    return render(request, 'user_management/admin_create_user.html', {'form': form})

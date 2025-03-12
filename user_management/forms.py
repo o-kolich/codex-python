@@ -3,11 +3,11 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm, SetP
 from .models import User
 
 class CustomUserCreationForm(UserCreationForm):
-    role = forms.ChoiceField(choices=User.ROLE_CHOICES, required=True)
+    # Role field removed - users will automatically be assigned the USER role
     
     class Meta:
         model = User
-        fields = ('username', 'email', 'password1', 'password2', 'role')
+        fields = ('username', 'email', 'password1', 'password2')
 
 class CustomAuthenticationForm(AuthenticationForm):
     class Meta:
@@ -25,3 +25,11 @@ class UserPasswordChangeForm(SetPasswordForm):
     class Meta:
         model = User
         fields = ('new_password1', 'new_password2')
+
+class AdminUserCreationForm(UserCreationForm):
+    """Form for creating new users by admins with role selection"""
+    role = forms.ChoiceField(choices=User.ROLE_CHOICES, required=True)
+    
+    class Meta:
+        model = User
+        fields = ('username', 'email', 'first_name', 'last_name', 'password1', 'password2', 'role')

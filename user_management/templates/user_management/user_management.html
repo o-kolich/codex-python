@@ -84,7 +84,9 @@
     
     <div style="margin-top: 20px;">
         <h3>Add New User</h3>
-        <p>To add a new user, go to the <a href="{% url 'register' %}">registration page</a>.</p>
+        <a href="{% url 'admin_create_user' %}" style="text-decoration: none;">
+            <button style="background-color: #4CAF50; margin-top: 10px;">Create New User</button>
+        </a>
     </div>
 </div>
 {% endblock %}

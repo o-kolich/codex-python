@@ -28,11 +28,7 @@
             {{ form.password2 }}
             {{ form.password2.errors }}
         </div>
-        <div class="form-group">
-            <label for="{{ form.role.id_for_label }}">Role:</label>
-            {{ form.role }}
-            {{ form.role.errors }}
-        </div>
+        <!-- Role selection removed - all users automatically get USER role -->
         <button type="submit">Register</button>
     </form>
     <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
