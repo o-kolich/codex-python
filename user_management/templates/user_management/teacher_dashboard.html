@@ -1,0 +1,21 @@
+{% extends 'user_management/base.html' %}
+
+{% block title %}Teacher Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Teacher Dashboard</h2>
+    <p>Welcome to your teacher dashboard, {{ user.username }}!</p>
+    <p>Your role: {{ user.get_role_display }}</p>
+    <p>This is the teacher view with expanded permissions.</p>
+    <div>
+        <h3>Teacher Actions</h3>
+        <ul>
+            <li>Manage your courses</li>
+            <li>Create learning materials</li>
+            <li>Interact with students</li>
+            <li>Grade assignments</li>
+        </ul>
+    </div>
+</div>
+{% endblock %}

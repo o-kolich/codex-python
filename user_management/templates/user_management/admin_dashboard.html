@@ -1,0 +1,49 @@
+{% extends 'user_management/base.html' %}
+
+{% block title %}Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h2>Admin Dashboard</h2>
+    <p>Welcome to your admin dashboard, {{ user.username }}!</p>
+    <p>Your role: {{ user.get_role_display }}</p>
+    <p>This is the admin view with full system access.</p>
+    
+    <div>
+        <h3>Admin Actions</h3>
+        <ul>
+            <li>Manage all users</li>
+            <li>Configure system settings</li>
+            <li>Create and manage content</li>
+            <li>Monitor system activity</li>
+        </ul>
+    </div>
+    
+    <div class="card">
+        <h3>User Management</h3>
+        <table style="width: 100%; border-collapse: collapse;">
+            <thead>
+                <tr style="background-color: #f2f2f2;">
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Username</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Email</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Role</th>
+                    <th style="padding: 10px; border: 1px solid #ddd; text-align: left;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user_item in users %}
+                <tr>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ user_item.username }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ user_item.email }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ user_item.get_role_display }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">
+                        <button>Edit</button>
+                        <button style="background-color: #ff4444;">Delete</button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
