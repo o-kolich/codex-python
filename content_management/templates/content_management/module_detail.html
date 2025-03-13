@@ -1,0 +1,190 @@
+{% extends 'content_management/base.html' %}
+
+{% block title %}{{ module.title }}{% endblock %}
+
+{% block content_management %}
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="{% url 'content_management:course_list' %}">Courses</a></li>
+                    <li class="breadcrumb-item"><a href="{% url 'content_management:course_detail' module.course.slug %}">{{ module.course.title }}</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">{{ module.title }}</li>
+                </ol>
+            </nav>
+            <h1>{{ module.title }}</h1>
+            <p class="text-muted">Module {{ module.order }} of {{ module.course.modules.count }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if is_instructor %}
+                <a href="{% url 'content_management:module_update' module.id %}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Edit Module
+                </a>
+                <div class="dropdown d-inline-block">
+                    <button class="btn btn-primary dropdown-toggle" type="button" id="addContentDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="bi bi-plus-circle"></i> Add Content
+                    </button>
+                    <ul class="dropdown-menu" aria-labelledby="addContentDropdown">
+                        <li><a class="dropdown-item" href="{% url 'content_management:content_create' module.id 'text' %}">Text</a></li>
+                        <li><a class="dropdown-item" href="{% url 'content_management:content_create' module.id 'file' %}">File</a></li>
+                        <li><a class="dropdown-item" href="{% url 'content_management:content_create' module.id 'image' %}">Image</a></li>
+                        <li><a class="dropdown-item" href="{% url 'content_management:content_create' module.id 'video' %}">Video</a></li>
+                        <li><a class="dropdown-item" href="{% url 'content_management:content_create' module.id 'assignment' %}">Assignment</a></li>
+                    </ul>
+                </div>
+            {% else %}
+                <form method="post" action="{% url 'content_management:module_complete' module.id %}" class="d-inline">
+                    {% csrf_token %}
+                    {% if is_completed %}
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="bi bi-check-circle-fill"></i> Completed
+                        </button>
+                    {% else %}
+                        <button type="submit" class="btn btn-success">
+                            <i class="bi bi-check-circle"></i> Mark as Complete
+                        </button>
+                    {% endif %}
+                </form>
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            {% if module.description %}
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Description</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ module.description }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Content sections -->
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Module Content</h5>
+                </div>
+                <div class="card-body">
+                    {% for content in module.contents.all %}
+                        <div class="content-item mb-4">
+                            <h4>{{ content.title }}</h4>
+                            
+                            {% if content.content_type == 'text' %}
+                                <div class="content-text">
+                                    {{ content.content|linebreaks }}
+                                </div>
+                            {% elif content.content_type == 'image' %}
+                                <div class="content-image">
+                                    <img src="{{ content.image.url }}" alt="{{ content.title }}" class="img-fluid">
+                                </div>
+                            {% elif content.content_type == 'file' %}
+                                <div class="content-file">
+                                    <a href="{{ content.file.url }}" class="btn btn-outline-primary" download>
+                                        <i class="bi bi-file-earmark"></i> Download File
+                                    </a>
+                                </div>
+                            {% elif content.content_type == 'video' %}
+                                <div class="content-video">
+                                    <div class="ratio ratio-16x9">
+                                        <iframe src="{{ content.url }}" title="{{ content.title }}" allowfullscreen></iframe>
+                                    </div>
+                                </div>
+                            {% elif content.content_type == 'assignment' %}
+                                <div class="content-assignment">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h5>Assignment</h5>
+                                            <p>{{ content.description|linebreaks }}</p>
+                                            <p><strong>Due Date:</strong> {{ content.due_date|date:"F j, Y, g:i a" }}</p>
+                                            <p><strong>Points:</strong> {{ content.points }}</p>
+                                            
+                                            {% if not is_instructor %}
+                                                <a href="{% url 'content_management:submission_create' content.id %}" class="btn btn-primary">
+                                                    Submit Assignment
+                                                </a>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endif %}
+                            
+                            {% if is_instructor %}
+                                <div class="mt-2">
+                                    <a href="{% url 'content_management:content_update' content.content_type content.id %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <a href="{% url 'content_management:content_delete' content.content_type content.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        
+                        {% if not forloop.last %}
+                            <hr>
+                        {% endif %}
+                    {% empty %}
+                        <div class="alert alert-info">
+                            No content has been added to this module yet.
+                            {% if is_instructor %}
+                                Use the "Add Content" button to add content.
+                            {% endif %}
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Course Modules</h5>
+                </div>
+                <div class="card-body">
+                    <div class="list-group">
+                        {% for m in module.course.modules.all %}
+                            <a href="{% url 'content_management:module_detail' m.id %}" 
+                               class="list-group-item list-group-item-action {% if m.id == module.id %}active{% endif %}">
+                                <div class="d-flex w-100 justify-content-between">
+                                    <h6 class="mb-1">{{ m.title }}</h6>
+                                    {% if not is_instructor and progress %}
+                                        {% if m in progress.completed_modules.all %}
+                                            <span class="badge bg-success rounded-pill">Completed</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </div>
+                            </a>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            {% if not is_instructor and progress %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Progress</h5>
+                </div>
+                <div class="card-body">
+                    {% with completed_count=progress.completed_modules.count total_count=module.course.modules.count %}
+                        <div class="progress mb-3">
+                            <div class="progress-bar" role="progressbar" 
+                                 style="width: {{ completed_count|divisibleby:total_count|default:0 }}%;" 
+                                 aria-valuenow="{{ completed_count }}" 
+                                 aria-valuemin="0" 
+                                 aria-valuemax="{{ total_count }}">
+                                {{ completed_count }} / {{ total_count }}
+                            </div>
+                        </div>
+                        <p class="text-center">
+                            You've completed {{ completed_count }} out of {{ total_count }} modules
+                        </p>
+                    {% endwith %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

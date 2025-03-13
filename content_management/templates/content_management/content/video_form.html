@@ -1,0 +1,47 @@
+{% extends 'content_management/base.html' %}
+
+{% block title %}{% if object %}Edit Video Content{% else %}Add Video Content{% endif %}{% endblock %}
+
+{% block content_management %}
+    <div class="row">
+        <div class="col-md-8 offset-md-2">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h3 class="mb-0">{% if object %}Edit Video Content{% else %}Add Video Content{% endif %}</h3>
+                    <span class="text-muted">Module: {{ module.title }}</span>
+                </div>
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="id_title" class="form-label">Title</label>
+                            <input type="text" name="title" value="{% if object %}{{ object.title }}{% endif %}" 
+                                   class="form-control" id="id_title" required>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_url" class="form-label">Video URL (YouTube, Vimeo, etc.)</label>
+                            <input type="url" name="url" value="{% if object %}{{ object.url }}{% endif %}" 
+                                   class="form-control" id="id_url" required>
+                            <div class="form-text">Enter the embed URL for the video (e.g., https://www.youtube.com/embed/VIDEO_ID)</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_order" class="form-label">Order</label>
+                            <input type="number" name="order" value="{% if object %}{{ object.order }}{% else %}0{% endif %}" 
+                                   class="form-control" id="id_order" min="0">
+                            <div class="form-text">The order in which this content appears in the module</div>
+                        </div>
+                        
+                        <div class="d-flex justify-content-between">
+                            <a href="{% url 'content_management:module_detail' module.id %}" class="btn btn-secondary">Cancel</a>
+                            <button type="submit" class="btn btn-primary">
+                                {% if object %}Update Content{% else %}Add Content{% endif %}
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}

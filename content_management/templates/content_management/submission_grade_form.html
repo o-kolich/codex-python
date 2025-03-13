@@ -1,0 +1,71 @@
+{% extends 'content_management/base.html' %}
+
+{% block title %}Grade Submission{% endblock %}
+
+{% block content_management %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Grade Submission</h3>
+                <span class="text-muted">{{ assignment.title }}</span>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Student Submission</h5>
+                    <p><strong>Student:</strong> {{ submission.student.username }}</p>
+                    <p><strong>Submitted on:</strong> {{ submission.submitted_at|date:"F j, Y, g:i a" }}</p>
+                    
+                    {% if submission.text %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">Text Submission</h6>
+                            </div>
+                            <div class="card-body">
+                                {{ submission.text|linebreaks }}
+                            </div>
+                        </div>
+                    {% endif %}
+                    
+                    {% if submission.file %}
+                        <div class="card mb-3">
+                            <div class="card-header">
+                                <h6 class="mb-0">File Submission</h6>
+                            </div>
+                            <div class="card-body">
+                                <a href="{{ submission.file.url }}" class="btn btn-outline-primary" download>
+                                    <i class="bi bi-file-earmark"></i> Download Submission File
+                                </a>
+                            </div>
+                        </div>
+                    {% endif %}
+                </div>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.grade.id_for_label }}" class="form-label">Grade (out of {{ assignment.points }} points)</label>
+                        {{ form.grade.errors }}
+                        <input type="number" name="{{ form.grade.name }}" value="{{ form.grade.value|default:'' }}" 
+                               class="form-control {% if form.grade.errors %}is-invalid{% endif %}" 
+                               id="{{ form.grade.id_for_label }}" min="0" max="{{ assignment.points }}" step="0.1" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.feedback.id_for_label }}" class="form-label">Feedback</label>
+                        {{ form.feedback.errors }}
+                        <textarea name="{{ form.feedback.name }}" 
+                                  class="form-control {% if form.feedback.errors %}is-invalid{% endif %}" 
+                                  id="{{ form.feedback.id_for_label }}" rows="5">{{ form.feedback.value|default:'' }}</textarea>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'content_management:module_detail' assignment.module.id %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Save Grade</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,29 @@
+{% extends 'content_management/base.html' %}
+
+{% block title %}Delete Module{% endblock %}
+
+{% block content_management %}
+<div class="row">
+    <div class="col-md-6 offset-md-3">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="mb-0">Confirm Deletion</h3>
+            </div>
+            <div class="card-body">
+                <p class="alert alert-danger">
+                    Are you sure you want to delete the module "{{ object.title }}"?
+                </p>
+                <p><strong>Warning:</strong> This will also delete all content associated with this module and cannot be undone.</p>
+                
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'content_management:course_detail' object.course.slug %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-danger">Delete Module</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

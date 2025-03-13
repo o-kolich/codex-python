@@ -17,10 +17,10 @@
     {% endif %}
     
     <div class="admin-menu" style="margin-bottom: 20px;">
-        <a href="{% url 'admin_dashboard' %}" style="text-decoration: none;">
+        <a href="{% url 'user_management:admin_dashboard' %}" style="text-decoration: none;">
             <button>Dashboard</button>
         </a>
-        <a href="{% url 'user_management' %}" style="text-decoration: none;">
+        <a href="{% url 'user_management:user_management' %}" style="text-decoration: none;">
             <button>Users</button>
         </a>
         <button style="background-color: #555;" disabled>Edit User</button>
@@ -134,7 +134,7 @@
     </div>
     
     <div style="margin-top: 20px;">
-        <a href="{% url 'user_management' %}">
+        <a href="{% url 'user_management:user_management' %}">
             <button style="background-color: #6c757d;">Back to User Management</button>
         </a>
     </div>

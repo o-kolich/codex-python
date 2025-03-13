@@ -1,0 +1,52 @@
+{% extends 'content_management/base.html' %}
+
+{% block title %}Submit Assignment{% endblock %}
+
+{% block content_management %}
+<div class="row">
+    <div class="col-md-8 offset-md-2">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="mb-0">Submit Assignment</h3>
+                <span class="text-muted">{{ assignment.title }}</span>
+            </div>
+            <div class="card-body">
+                <div class="mb-4">
+                    <h5>Assignment Description</h5>
+                    <p>{{ assignment.description|linebreaks }}</p>
+                    <div class="alert alert-info">
+                        <p><strong>Due Date:</strong> {{ assignment.due_date|date:"F j, Y, g:i a" }}</p>
+                        <p><strong>Points:</strong> {{ assignment.points }}</p>
+                    </div>
+                </div>
+                
+                <form method="post" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="{{ form.file.id_for_label }}" class="form-label">Upload File (optional)</label>
+                        {{ form.file.errors }}
+                        <input type="file" name="{{ form.file.name }}" 
+                               class="form-control {% if form.file.errors %}is-invalid{% endif %}" 
+                               id="{{ form.file.id_for_label }}">
+                        <div class="form-text">Upload a file with your submission (PDF, document, etc.)</div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="{{ form.text.id_for_label }}" class="form-label">Text Answer</label>
+                        {{ form.text.errors }}
+                        <textarea name="{{ form.text.name }}" 
+                                  class="form-control {% if form.text.errors %}is-invalid{% endif %}" 
+                                  id="{{ form.text.id_for_label }}" rows="10">{{ form.text.value|default:'' }}</textarea>
+                        <div class="form-text">You can submit a text answer, a file, or both.</div>
+                    </div>
+                    
+                    <div class="d-flex justify-content-between">
+                        <a href="{% url 'content_management:module_detail' assignment.module.id %}" class="btn btn-secondary">Cancel</a>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
