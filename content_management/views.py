@@ -184,7 +184,7 @@ class ModuleDetailView(LoginRequiredMixin, DetailView):
         
         return context
 
-class ModuleUpdateView(OwnerRequiredMixin, UpdateView):
+class ModuleUpdateView(LoginRequiredMixin, UpdateView):
     """Update existing module"""
     model = Module
     fields = ['title', 'description', 'order']
@@ -209,7 +209,7 @@ class ModuleUpdateView(OwnerRequiredMixin, UpdateView):
     def get_success_url(self):
         return reverse('content_management:course_detail', args=[self.object.course.slug])
 
-class ModuleDeleteView(OwnerRequiredMixin, DeleteView):
+class ModuleDeleteView(LoginRequiredMixin, DeleteView):
     """Delete a module"""
     model = Module
     template_name = 'content_management/module_confirm_delete.html'
@@ -271,13 +271,60 @@ class ContentCreateView(TeacherRequiredMixin, View):
             messages.error(request, f"Invalid content type: {content_type}")
             return redirect('content_management:module_detail', pk=module.id)
         
-        # Process the form (form processing would be specific to content type)
-        # This is a placeholder - actual implementation would process the form data
+        # Get the model class
+        content_model = CONTENT_MODELS[content_type]
+        
+        # Process the form based on content type
+        title = request.POST.get('title')
+        order = request.POST.get('order', 0)
+        
+        if not title:
+            messages.error(request, "Title is required.")
+            return redirect('content_management:content_create', module_id=module.id, content_type=content_type)
+        
+        # Create the content object
+        content_obj = content_model(module=module, title=title, order=order)
+        
+        # Set specific fields based on content type
+        if content_type == 'text':
+            content_obj.content = request.POST.get('content', '')
+        elif content_type == 'file':
+            if 'file' in request.FILES:
+                content_obj.file = request.FILES['file']
+            else:
+                messages.error(request, "No file uploaded.")
+                return redirect('content_management:content_create', module_id=module.id, content_type=content_type)
+        elif content_type == 'image':
+            if 'image' in request.FILES:
+                content_obj.image = request.FILES['image']
+            else:
+                messages.error(request, "No image uploaded.")
+                return redirect('content_management:content_create', module_id=module.id, content_type=content_type)
+        elif content_type == 'video':
+            content_obj.url = request.POST.get('url', '')
+            if not content_obj.url:
+                messages.error(request, "Video URL is required.")
+                return redirect('content_management:content_create', module_id=module.id, content_type=content_type)
+        elif content_type == 'assignment':
+            content_obj.description = request.POST.get('description', '')
+            due_date_str = request.POST.get('due_date', '')
+            points = request.POST.get('points', 100)
+            
+            from django.utils.dateparse import parse_datetime
+            try:
+                content_obj.due_date = parse_datetime(due_date_str)
+                content_obj.points = int(points)
+            except:
+                messages.error(request, "Invalid date format or points value.")
+                return redirect('content_management:content_create', module_id=module.id, content_type=content_type)
+        
+        # Save the content object
+        content_obj.save()
         
         messages.success(request, f"{content_type.capitalize()} content added successfully!")
         return redirect('content_management:module_detail', pk=module.id)
 
-class ContentUpdateView(OwnerRequiredMixin, View):
+class ContentUpdateView(LoginRequiredMixin, View):
     """Generic view to update different content types"""
     
     def get_object(self):
@@ -314,13 +361,53 @@ class ContentUpdateView(OwnerRequiredMixin, View):
         content_type = kwargs.get('content_type')
         module = self.object.module
         
-        # Process the form (form processing would be specific to content type)
-        # This is a placeholder - actual implementation would process the form data
+        # Process common fields
+        title = request.POST.get('title')
+        order = request.POST.get('order', self.object.order)
+        
+        if not title:
+            messages.error(request, "Title is required.")
+            return self.get(request, *args, **kwargs)
+        
+        # Update common fields
+        self.object.title = title
+        self.object.order = order
+        
+        # Update specific fields based on content type
+        if content_type == 'text':
+            self.object.content = request.POST.get('content', '')
+        elif content_type == 'file':
+            if 'file' in request.FILES:
+                self.object.file = request.FILES['file']
+        elif content_type == 'image':
+            if 'image' in request.FILES:
+                self.object.image = request.FILES['image']
+        elif content_type == 'video':
+            self.object.url = request.POST.get('url', '')
+            if not self.object.url:
+                messages.error(request, "Video URL is required.")
+                return self.get(request, *args, **kwargs)
+        elif content_type == 'assignment':
+            self.object.description = request.POST.get('description', '')
+            due_date_str = request.POST.get('due_date', '')
+            points = request.POST.get('points', 100)
+            
+            from django.utils.dateparse import parse_datetime
+            try:
+                if due_date_str:
+                    self.object.due_date = parse_datetime(due_date_str)
+                self.object.points = int(points)
+            except:
+                messages.error(request, "Invalid date format or points value.")
+                return self.get(request, *args, **kwargs)
+        
+        # Save the updated object
+        self.object.save()
         
         messages.success(request, f"{content_type.capitalize()} content updated successfully!")
         return redirect('content_management:module_detail', pk=module.id)
 
-class ContentDeleteView(OwnerRequiredMixin, View):
+class ContentDeleteView(LoginRequiredMixin, View):
     """Generic view to delete different content types"""
     
     def get_object(self):

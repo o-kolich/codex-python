@@ -3,132 +3,149 @@
 {% block title %}Create New User{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>Create New User</h2>
-    
+<div class="container mt-4">
     {% if messages %}
-    <div class="messages">
         {% for message in messages %}
-        <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}" style="padding: 10px; margin-bottom: 15px; border-radius: 4px; {% if message.tags == 'success' %}background-color: #d4edda; color: #155724;{% elif message.tags == 'error' %}background-color: #f8d7da; color: #721c24;{% endif %}">
-            {{ message }}
-        </div>
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
         {% endfor %}
-    </div>
     {% endif %}
-    
-    <div class="admin-menu" style="margin-bottom: 20px;">
-        <a href="{% url 'user_management:admin_dashboard' %}" style="text-decoration: none;">
-            <button>Dashboard</button>
-        </a>
-        <a href="{% url 'user_management:user_management' %}" style="text-decoration: none;">
-            <button>Users</button>
-        </a>
-        <button style="background-color: #555;" disabled>Create User</button>
+
+    <div class="row mb-4">
+        <div class="col-md-9">
+            <h1>Create New User</h1>
+        </div>
+        <div class="col-md-3 text-end">
+            <a href="{% url 'user_management:user_management' %}" class="btn btn-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Users
+            </a>
+        </div>
     </div>
-    
-    <div class="card">
-        <h3>New User Details</h3>
-        <form method="post">
-            {% csrf_token %}
-            {{ form.non_field_errors }}
-            
-            <div class="form-group">
-                <label for="{{ form.username.id_for_label }}">Username:</label>
-                {{ form.username }}
-                {% if form.username.errors %}
-                <ul class="errorlist">
-                    {% for error in form.username.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.email.id_for_label }}">Email:</label>
-                {{ form.email }}
-                {% if form.email.errors %}
-                <ul class="errorlist">
-                    {% for error in form.email.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.first_name.id_for_label }}">First Name:</label>
-                {{ form.first_name }}
-                {% if form.first_name.errors %}
-                <ul class="errorlist">
-                    {% for error in form.first_name.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.last_name.id_for_label }}">Last Name:</label>
-                {{ form.last_name }}
-                {% if form.last_name.errors %}
-                <ul class="errorlist">
-                    {% for error in form.last_name.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.password1.id_for_label }}">Password:</label>
-                {{ form.password1 }}
-                {% if form.password1.errors %}
-                <ul class="errorlist">
-                    {% for error in form.password1.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-                {% if form.password1.help_text %}
-                <div class="help-text" style="font-size: 0.8em; color: #666; margin-top: 5px;">
-                    {{ form.password1.help_text|safe }}
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">New User Details</h5>
                 </div>
-                {% endif %}
+                <div class="card-body">
+                    <form method="post">
+                        {% csrf_token %}
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ form.non_field_errors }}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="mb-3">
+                            <label for="id_username" class="form-label">Username:</label>
+                            <input type="text" name="username" value="{{ form.username.value|default:'' }}" class="form-control" id="id_username">
+                            {% if form.username.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.username.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_email" class="form-label">Email:</label>
+                            <input type="email" name="email" value="{{ form.email.value|default:'' }}" class="form-control" id="id_email">
+                            {% if form.email.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.email.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="id_first_name" class="form-label">First Name:</label>
+                                    <input type="text" name="first_name" value="{{ form.first_name.value|default:'' }}" class="form-control" id="id_first_name">
+                                    {% if form.first_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.first_name.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="mb-3">
+                                    <label for="id_last_name" class="form-label">Last Name:</label>
+                                    <input type="text" name="last_name" value="{{ form.last_name.value|default:'' }}" class="form-control" id="id_last_name">
+                                    {% if form.last_name.errors %}
+                                    <div class="invalid-feedback d-block">
+                                        {% for error in form.last_name.errors %}
+                                        {{ error }}
+                                        {% endfor %}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_password1" class="form-label">Password:</label>
+                            <input type="password" name="password1" class="form-control" id="id_password1">
+                            {% if form.password1.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password1.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                            {% if form.password1.help_text %}
+                            <div class="form-text text-muted small">
+                                {{ form.password1.help_text|safe }}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_password2" class="form-label">Confirm Password:</label>
+                            <input type="password" name="password2" class="form-control" id="id_password2">
+                            {% if form.password2.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.password2.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="id_role" class="form-label">Role:</label>
+                            <select name="role" class="form-select" id="id_role">
+                                <option value="USER" {% if form.role.value == 'USER' %}selected{% endif %}>User</option>
+                                <option value="TEACHER" {% if form.role.value == 'TEACHER' %}selected{% endif %}>Teacher</option>
+                                <option value="ADMIN" {% if form.role.value == 'ADMIN' %}selected{% endif %}>Admin</option>
+                            </select>
+                            {% if form.role.errors %}
+                            <div class="invalid-feedback d-block">
+                                {% for error in form.role.errors %}
+                                {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-person-plus"></i> Create User
+                            </button>
+                        </div>
+                    </form>
+                </div>
             </div>
-            
-            <div class="form-group">
-                <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
-                {{ form.password2 }}
-                {% if form.password2.errors %}
-                <ul class="errorlist">
-                    {% for error in form.password2.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-            </div>
-            
-            <div class="form-group">
-                <label for="{{ form.role.id_for_label }}">Role:</label>
-                {{ form.role }}
-                {% if form.role.errors %}
-                <ul class="errorlist">
-                    {% for error in form.role.errors %}
-                    <li>{{ error }}</li>
-                    {% endfor %}
-                </ul>
-                {% endif %}
-            </div>
-            
-            <button type="submit">Create User</button>
-        </form>
-    </div>
-    
-    <div style="margin-top: 20px;">
-        <a href="{% url 'user_management:user_management' %}">
-            <button style="background-color: #6c757d;">Back to User Management</button>
-        </a>
+        </div>
     </div>
 </div>
 {% endblock %}

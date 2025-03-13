@@ -68,72 +68,139 @@
                     <h5 class="mb-0">Module Content</h5>
                 </div>
                 <div class="card-body">
-                    {% for content in module.contents.all %}
+                    {% with text_list=module.text_set.all|dictsortreversed:"order" file_list=module.file_set.all|dictsortreversed:"order" image_list=module.image_set.all|dictsortreversed:"order" video_list=module.video_set.all|dictsortreversed:"order" assignment_list=module.assignment_set.all|dictsortreversed:"order" %}
+                    
+                    {% for content in text_list %}
                         <div class="content-item mb-4">
                             <h4>{{ content.title }}</h4>
-                            
-                            {% if content.content_type == 'text' %}
-                                <div class="content-text">
-                                    {{ content.content|linebreaks }}
-                                </div>
-                            {% elif content.content_type == 'image' %}
-                                <div class="content-image">
-                                    <img src="{{ content.image.url }}" alt="{{ content.title }}" class="img-fluid">
-                                </div>
-                            {% elif content.content_type == 'file' %}
-                                <div class="content-file">
-                                    <a href="{{ content.file.url }}" class="btn btn-outline-primary" download>
-                                        <i class="bi bi-file-earmark"></i> Download File
-                                    </a>
-                                </div>
-                            {% elif content.content_type == 'video' %}
-                                <div class="content-video">
-                                    <div class="ratio ratio-16x9">
-                                        <iframe src="{{ content.url }}" title="{{ content.title }}" allowfullscreen></iframe>
-                                    </div>
-                                </div>
-                            {% elif content.content_type == 'assignment' %}
-                                <div class="content-assignment">
-                                    <div class="card">
-                                        <div class="card-body">
-                                            <h5>Assignment</h5>
-                                            <p>{{ content.description|linebreaks }}</p>
-                                            <p><strong>Due Date:</strong> {{ content.due_date|date:"F j, Y, g:i a" }}</p>
-                                            <p><strong>Points:</strong> {{ content.points }}</p>
-                                            
-                                            {% if not is_instructor %}
-                                                <a href="{% url 'content_management:submission_create' content.id %}" class="btn btn-primary">
-                                                    Submit Assignment
-                                                </a>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endif %}
+                            <div class="content-text">
+                                {{ content.content|linebreaks }}
+                            </div>
                             
                             {% if is_instructor %}
                                 <div class="mt-2">
-                                    <a href="{% url 'content_management:content_update' content.content_type content.id %}" class="btn btn-sm btn-outline-secondary">
+                                    <a href="{% url 'content_management:content_update' 'text' content.id %}" class="btn btn-sm btn-outline-secondary">
                                         <i class="bi bi-pencil"></i> Edit
                                     </a>
-                                    <a href="{% url 'content_management:content_delete' content.content_type content.id %}" class="btn btn-sm btn-outline-danger">
+                                    <a href="{% url 'content_management:content_delete' 'text' content.id %}" class="btn btn-sm btn-outline-danger">
                                         <i class="bi bi-trash"></i> Delete
                                     </a>
                                 </div>
                             {% endif %}
                         </div>
-                        
-                        {% if not forloop.last %}
-                            <hr>
-                        {% endif %}
-                    {% empty %}
+                        {% if not forloop.last or file_list or image_list or video_list or assignment_list %}<hr>{% endif %}
+                    {% endfor %}
+                    
+                    {% for content in file_list %}
+                        <div class="content-item mb-4">
+                            <h4>{{ content.title }}</h4>
+                            <div class="content-file">
+                                <a href="{{ content.file.url }}" class="btn btn-outline-primary" download>
+                                    <i class="bi bi-file-earmark"></i> Download File
+                                </a>
+                            </div>
+                            
+                            {% if is_instructor %}
+                                <div class="mt-2">
+                                    <a href="{% url 'content_management:content_update' 'file' content.id %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <a href="{% url 'content_management:content_delete' 'file' content.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if not forloop.last or image_list or video_list or assignment_list %}<hr>{% endif %}
+                    {% endfor %}
+                    
+                    {% for content in image_list %}
+                        <div class="content-item mb-4">
+                            <h4>{{ content.title }}</h4>
+                            <div class="content-image">
+                                <img src="{{ content.image.url }}" alt="{{ content.title }}" class="img-fluid">
+                            </div>
+                            
+                            {% if is_instructor %}
+                                <div class="mt-2">
+                                    <a href="{% url 'content_management:content_update' 'image' content.id %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <a href="{% url 'content_management:content_delete' 'image' content.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if not forloop.last or video_list or assignment_list %}<hr>{% endif %}
+                    {% endfor %}
+                    
+                    {% for content in video_list %}
+                        <div class="content-item mb-4">
+                            <h4>{{ content.title }}</h4>
+                            <div class="content-video">
+                                <div class="ratio ratio-16x9">
+                                    <iframe src="{{ content.url }}" title="{{ content.title }}" allowfullscreen></iframe>
+                                </div>
+                            </div>
+                            
+                            {% if is_instructor %}
+                                <div class="mt-2">
+                                    <a href="{% url 'content_management:content_update' 'video' content.id %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <a href="{% url 'content_management:content_delete' 'video' content.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if not forloop.last or assignment_list %}<hr>{% endif %}
+                    {% endfor %}
+                    
+                    {% for content in assignment_list %}
+                        <div class="content-item mb-4">
+                            <h4>{{ content.title }}</h4>
+                            <div class="content-assignment">
+                                <div class="card">
+                                    <div class="card-body">
+                                        <h5>Assignment</h5>
+                                        <p>{{ content.description|linebreaks }}</p>
+                                        <p><strong>Due Date:</strong> {{ content.due_date|date:"F j, Y, g:i a" }}</p>
+                                        <p><strong>Points:</strong> {{ content.points }}</p>
+                                        
+                                        {% if not is_instructor %}
+                                            <a href="{% url 'content_management:submission_create' content.id %}" class="btn btn-primary">
+                                                Submit Assignment
+                                            </a>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            {% if is_instructor %}
+                                <div class="mt-2">
+                                    <a href="{% url 'content_management:content_update' 'assignment' content.id %}" class="btn btn-sm btn-outline-secondary">
+                                        <i class="bi bi-pencil"></i> Edit
+                                    </a>
+                                    <a href="{% url 'content_management:content_delete' 'assignment' content.id %}" class="btn btn-sm btn-outline-danger">
+                                        <i class="bi bi-trash"></i> Delete
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% if not forloop.last %}<hr>{% endif %}
+                    {% endfor %}
+                    
+                    {% if not text_list and not file_list and not image_list and not video_list and not assignment_list %}
                         <div class="alert alert-info">
                             No content has been added to this module yet.
                             {% if is_instructor %}
                                 Use the "Add Content" button to add content.
                             {% endif %}
                         </div>
-                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
                 </div>
             </div>
         </div>
