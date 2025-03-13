@@ -18,7 +18,7 @@ def register_view(request):
             # Save the form's m2m data as well
             form.save_m2m()
             login(request, user)
-            return redirect('dashboard')
+            return redirect('user_management:dashboard')
     else:
         form = CustomUserCreationForm()
     return render(request, 'user_management/register.html', {'form': form})
@@ -32,14 +32,14 @@ def login_view(request):
             user = authenticate(username=username, password=password)
             if user is not None:
                 login(request, user)
-                return redirect('dashboard')
+                return redirect('user_management:dashboard')
     else:
         form = CustomAuthenticationForm()
     return render(request, 'user_management/login.html', {'form': form})
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return redirect('user_management:login')
 
 @login_required
 def dashboard_view(request):
@@ -54,14 +54,30 @@ def dashboard_view(request):
 @login_required
 def admin_dashboard(request):
     if not request.user.is_administrator():
-        return redirect('dashboard')
+        return redirect('user_management:dashboard')
+    
+    # Get all users for dashboard display
     users = User.objects.all()
-    return render(request, 'user_management/admin_dashboard.html', {'users': users})
+    
+    # Get course count if content_management is installed
+    course_count = 0
+    try:
+        from content_management.models import Course
+        course_count = Course.objects.count()
+    except ImportError:
+        pass
+    
+    context = {
+        'users': users,
+        'course_count': course_count
+    }
+    
+    return render(request, 'user_management/admin_dashboard.html', context)
 
 @login_required
 def teacher_dashboard(request):
     if not request.user.is_teacher():
-        return redirect('dashboard')
+        return redirect('user_management:dashboard')
     return render(request, 'user_management/teacher_dashboard.html')
 
 @login_required
@@ -71,7 +87,7 @@ def user_dashboard(request):
 @login_required
 def user_management(request):
     if not request.user.is_administrator():
-        return redirect('dashboard')
+        return redirect('user_management:dashboard')
     
     users = User.objects.all()
     
@@ -83,7 +99,7 @@ def user_management(request):
         if action == 'delete' and user != request.user:
             user.delete()
             messages.success(request, f"User {user.username} has been deleted.")
-            return redirect('user_management')
+            return redirect('user_management:user_management')
         
         elif action == 'change_role' and 'new_role' in request.POST:
             new_role = request.POST.get('new_role')
@@ -91,14 +107,14 @@ def user_management(request):
                 user.role = new_role
                 user.save()
                 messages.success(request, f"User {user.username}'s role changed to {user.get_role_display()}.")
-                return redirect('user_management')
+                return redirect('user_management:user_management')
     
     return render(request, 'user_management/user_management.html', {'users': users})
 
 @login_required
 def edit_user(request, user_id):
     if not request.user.is_administrator():
-        return redirect('dashboard')
+        return redirect('user_management:dashboard')
         
     user_to_edit = get_object_or_404(User, id=user_id)
     
@@ -112,14 +128,14 @@ def edit_user(request, user_id):
             if user_form.is_valid():
                 user_form.save()
                 messages.success(request, f"User {user_to_edit.username}'s details updated successfully.")
-                return redirect('user_management')
+                return redirect('user_management:user_management')
                 
         elif 'change_password' in request.POST:
             password_form = UserPasswordChangeForm(user=user_to_edit, data=request.POST)
             if password_form.is_valid():
                 password_form.save()
                 messages.success(request, f"Password for {user_to_edit.username} changed successfully.")
-                return redirect('user_management')
+                return redirect('user_management:user_management')
     
     context = {
         'user_to_edit': user_to_edit,
@@ -133,14 +149,14 @@ def edit_user(request, user_id):
 def admin_create_user(request):
     """View for admins to create new users with role selection"""
     if not request.user.is_administrator():
-        return redirect('dashboard')
+        return redirect('user_management:dashboard')
     
     if request.method == 'POST':
         form = AdminUserCreationForm(request.POST)
         if form.is_valid():
             form.save()
             messages.success(request, f"User {form.cleaned_data.get('username')} has been created successfully.")
-            return redirect('user_management')
+            return redirect('user_management:user_management')
     else:
         form = AdminUserCreationForm()
     

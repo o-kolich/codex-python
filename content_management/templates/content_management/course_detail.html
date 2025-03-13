@@ -1,0 +1,126 @@
+{% extends 'content_management/base.html' %}
+
+{% block title %}{{ course.title }}{% endblock %}
+
+{% block content_management %}
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1>{{ course.title }}</h1>
+            <p class="text-muted">{{ course.subject.title }} | Created by {{ course.owner.username }}</p>
+        </div>
+        <div class="col-md-4 text-end">
+            {% if is_instructor %}
+                <a href="{% url 'content_management:course_update' course.slug %}" class="btn btn-outline-primary">
+                    <i class="bi bi-pencil"></i> Edit Course
+                </a>
+                <a href="{% url 'content_management:module_create' course_slug=course.slug %}" class="btn btn-primary">
+                    <i class="bi bi-plus-circle"></i> Add Module
+                </a>
+            {% else %}
+                {% if request.user in course.students.all %}
+                    <span class="badge bg-success p-2">Enrolled</span>
+                {% else %}
+                    <form method="post" action="{% url 'content_management:course_enroll' course.slug %}" class="d-inline">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-success">Enroll in Course</button>
+                    </form>
+                {% endif %}
+            {% endif %}
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Course Overview</h5>
+                </div>
+                <div class="card-body">
+                    <p>{{ course.overview }}</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Modules</h5>
+                    {% if is_instructor %}
+                        <a href="{% url 'content_management:module_create' course_slug=course.slug %}" class="btn btn-sm btn-primary">
+                            <i class="bi bi-plus-circle"></i> Add Module
+                        </a>
+                    {% endif %}
+                </div>
+                <div class="card-body">
+                    {% if course.modules.all %}
+                        <div class="list-group">
+                            {% for module in course.modules.all %}
+                                <a href="{% url 'content_management:module_detail' module.id %}" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <h6 class="mb-1">{{ module.title }}</h6>
+                                        <small class="text-muted">{{ module.description|truncatewords:10 }}</small>
+                                    </div>
+                                    {% if not is_instructor and completed_modules %}
+                                        {% if module in completed_modules %}
+                                            <span class="badge bg-success rounded-pill">Completed</span>
+                                        {% endif %}
+                                    {% endif %}
+                                </a>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            No modules available for this course yet.
+                            {% if is_instructor %}
+                                <a href="{% url 'content_management:module_create' course_slug=course.slug %}">Add the first module</a>.
+                            {% endif %}
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Course Details</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Modules
+                            <span class="badge bg-primary rounded-pill">{{ course.modules.count }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                            Students
+                            <span class="badge bg-primary rounded-pill">{{ course.students.count }}</span>
+                        </li>
+                        <li class="list-group-item">
+                            Created
+                            <span class="float-end">{{ course.created|date:"F j, Y" }}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+
+            {% if not is_instructor and progress %}
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Progress</h5>
+                </div>
+                <div class="card-body">
+                    {% with completed_count=completed_modules|length total_count=course.modules.count %}
+                        <div class="progress mb-3">
+                            <div class="progress-bar" role="progressbar" style="width: {{ completed_count|divisibleby:total_count|default:0 }}%;" 
+                                 aria-valuenow="{{ completed_count }}" aria-valuemin="0" aria-valuemax="{{ total_count }}">
+                                {{ completed_count }} / {{ total_count }}
+                            </div>
+                        </div>
+                        <p class="text-center">
+                            You've completed {{ completed_count }} out of {{ total_count }} modules
+                        </p>
+                    {% endwith %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}

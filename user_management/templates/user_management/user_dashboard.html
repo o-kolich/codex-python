@@ -3,18 +3,93 @@
 {% block title %}User Dashboard{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>User Dashboard</h2>
-    <p>Welcome to your user dashboard, {{ user.username }}!</p>
-    <p>Your role: {{ user.get_role_display }}</p>
-    <p>This is the standard user view with limited permissions.</p>
-    <div>
-        <h3>User Actions</h3>
-        <ul>
-            <li>View your profile information</li>
-            <li>Update your settings</li>
-            <li>Access basic features</li>
-        </ul>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Welcome, {{ user.username }}</h4>
+                </div>
+                <div class="card-body">
+                    <p>You are logged in as a student.</p>
+                    
+                    <!-- Quick actions -->
+                    <div class="d-flex gap-2 mb-3">
+                        <a href="{% url 'content_management:course_list' %}" class="btn btn-primary">
+                            <i class="bi bi-book"></i> Browse Courses
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Enrolled courses -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Enrolled Courses</h5>
+                </div>
+                <div class="card-body">
+                    {% if user.courses_enrolled.all %}
+                        <div class="row">
+                            {% for course in user.courses_enrolled.all %}
+                                <div class="col-md-6 mb-3">
+                                    <div class="card h-100">
+                                        <div class="card-header">
+                                            <h5 class="card-title mb-0">{{ course.title }}</h5>
+                                        </div>
+                                        <div class="card-body">
+                                            <p class="card-text">{{ course.overview|truncatewords:20 }}</p>
+                                        </div>
+                                        <div class="card-footer">
+                                            <a href="{% url 'content_management:course_detail' course.slug %}" class="btn btn-sm btn-primary">Continue Learning</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            You're not enrolled in any courses yet. 
+                            <a href="{% url 'content_management:course_list' %}">Browse available courses</a>.
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- Learning stats -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Your Learning Progress</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Courses Enrolled</h5>
+                                    <p class="display-4">{{ user.courses_enrolled.count }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Completed Modules</h5>
+                                    <p class="display-4">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Assignments</h5>
+                                    <p class="display-4">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

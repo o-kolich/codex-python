@@ -3,19 +3,63 @@
 {% block title %}Teacher Dashboard{% endblock %}
 
 {% block content %}
-<div class="card">
-    <h2>Teacher Dashboard</h2>
-    <p>Welcome to your teacher dashboard, {{ user.username }}!</p>
-    <p>Your role: {{ user.get_role_display }}</p>
-    <p>This is the teacher view with expanded permissions.</p>
-    <div>
-        <h3>Teacher Actions</h3>
-        <ul>
-            <li>Manage your courses</li>
-            <li>Create learning materials</li>
-            <li>Interact with students</li>
-            <li>Grade assignments</li>
-        </ul>
+<div class="container mt-4">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h4 class="card-title mb-0">Welcome, {{ user.username }}</h4>
+                </div>
+                <div class="card-body">
+                    <p>You are logged in as a teacher.</p>
+                    
+                    <!-- Quick actions -->
+                    <div class="d-flex gap-2 mb-3">
+                        <a href="{% url 'content_management:course_list' %}" class="btn btn-primary">
+                            <i class="bi bi-book"></i> Manage Courses
+                        </a>
+                        <a href="{% url 'content_management:course_create' %}" class="btn btn-success">
+                            <i class="bi bi-plus-circle"></i> Create New Course
+                        </a>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Course stats card -->
+            <div class="card">
+                <div class="card-header">
+                    <h5 class="mb-0">Teaching Dashboard</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Your Courses</h5>
+                                    <p class="display-4">{{ user.courses_created.count }}</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Total Students</h5>
+                                    <p class="display-4">0</p>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card mb-3">
+                                <div class="card-body text-center">
+                                    <h5 class="card-title">Total Content Items</h5>
+                                    <p class="display-4">0</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}

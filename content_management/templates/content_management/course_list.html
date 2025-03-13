@@ -1,0 +1,85 @@
+{% extends 'content_management/base.html' %}
+
+{% block title %}Courses{% endblock %}
+
+{% block content_management %}
+    <div class="row mb-4">
+        <div class="col-md-9">
+            <h1>Available Courses</h1>
+        </div>
+        {% if is_instructor %}
+        <div class="col-md-3 text-end">
+            <a href="{% url 'content_management:course_create' %}" class="btn btn-primary">
+                <i class="bi bi-plus-circle"></i> Create Course
+            </a>
+        </div>
+        {% endif %}
+    </div>
+
+    {% if not courses %}
+        <div class="alert alert-info">
+            {% if is_instructor %}
+                You haven't created any courses yet. Click the "Create Course" button to get started!
+            {% else %}
+                You're not enrolled in any courses yet. Browse available courses below.
+            {% endif %}
+        </div>
+    {% endif %}
+
+    <div class="row">
+        <div class="col-md-3">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5 class="mb-0">Subjects</h5>
+                </div>
+                <div class="card-body">
+                    <ul class="list-group">
+                        {% for subject in subjects %}
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                {{ subject.title }}
+                                <span class="badge bg-primary rounded-pill">{{ subject.total_courses }}</span>
+                            </li>
+                        {% empty %}
+                            <li class="list-group-item">No subjects available</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-9">
+            <div class="row">
+                {% for course in courses %}
+                    <div class="col-md-6 mb-4">
+                        <div class="card h-100">
+                            <div class="card-header bg-light">
+                                <h5 class="card-title mb-0">{{ course.title }}</h5>
+                            </div>
+                            <div class="card-body">
+                                <h6 class="card-subtitle mb-2 text-muted">{{ course.subject.title }}</h6>
+                                <p class="card-text">{{ course.overview|truncatewords:30 }}</p>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <small class="text-muted">{{ course.modules.count }} modules</small>
+                                    <small class="text-muted">{{ course.students.count }} students</small>
+                                </div>
+                            </div>
+                            <div class="card-footer bg-white">
+                                <a href="{% url 'content_management:course_detail' course.slug %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                                {% if is_instructor and course.owner == request.user %}
+                                    <a href="{% url 'content_management:course_update' course.slug %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                    <a href="{% url 'content_management:course_delete' course.slug %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                {% empty %}
+                    <div class="col-12">
+                        <div class="alert alert-info">
+                            No courses available.
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,6 +1,6 @@
 # Codex Project
 
-A Django web application that allows users to register and login with different roles (USER, TEACHER, ADMIN) and access role-specific dashboards.
+A Django web application that allows users to register and login with different roles (USER, TEACHER, ADMIN) and access role-specific dashboards. The platform includes a comprehensive content management system for educational materials.
 
 ## Features
 
@@ -9,6 +9,11 @@ A Django web application that allows users to register and login with different 
 - Custom user model
 - Bootstrap-styled responsive interface
 - Admin interface for user management
+- Content management system for educational materials
+- Course creation and management
+- Module-based learning structure
+- Student enrollment and progress tracking
+- Multiple content types (text, files, images, videos, assignments)
 
 ## Setup
 
@@ -26,7 +31,7 @@ source venv/bin/activate  # On Windows: venv\Scripts\activate
 
 3. Install dependencies:
 ```
-pip install django
+pip install django pillow
 ```
 
 4. Run migrations:
@@ -44,7 +49,7 @@ python manage.py createsuperuser
 python manage.py runserver
 ```
 
-7. Access the application at http://127.0.0.1:8000/
+7. Access the application at http://127.0.0.1:8000/user/login/
 
 ## Default Accounts
 
@@ -61,9 +66,28 @@ A default admin account has been created:
   - `templates/` - HTML templates for the application
   - `forms.py` - Forms for user creation and authentication
   - `urls.py` - URL routing
+- `content_management/` - App for educational content management
+  - `models.py` - Models for courses, modules, and various content types
+  - `views.py` - Views for content creation, editing, and student interaction
+  - `templates/` - HTML templates for content management
+  - `urls.py` - URL routing for content features
+  - `admin.py` - Admin interface configuration
 
 ## Usage
 
 1. Register a new account or log in with the default admin account
-2. Access your role-specific dashboard
-3. Admin users can manage all users through the admin interface or admin dashboard
+2. Access your role-specific dashboard:
+   - **Students** can browse and enroll in courses, track their progress, and access learning materials
+   - **Teachers** can create and manage courses, organize content into modules, and add various types of learning materials
+   - **Admins** can manage users and have full access to all courses and content
+
+3. Content Management:
+   - Create courses with descriptions and categorize them by subject
+   - Organize course content into modules
+   - Add different types of content: text, files, images, videos, and assignments
+   - Track student progress through course modules
+
+4. User Management:
+   - Admin users can create, edit, and delete users
+   - Assign different roles to users (User/Student, Teacher, Admin)
+   - View system statistics and user activity
